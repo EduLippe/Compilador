@@ -1,6 +1,17 @@
 import ply.yacc as yacc
 from lexer import tokens, literals, lexer
-from nosAst import DeclaracaoVariavel, Programa, Parametro, Funcao, Atribuicao, Numero, Booleano, Variavel, Leitura
+from nosAst import DeclaracaoVariavel, Programa, Parametro, Funcao, Atribuicao, Numero, Booleano, Variavel, Leitura, Escrita, OperacaoBinaria, OperacaoUniria, Condicional
+
+#A ordem defene a prioridade
+precedence = (
+    ('left', 'OU_LOGICO'),
+    ('left', 'E_LOGICO'),
+    ('nonassoc', 'IGUAL', 'DIFERENTE'),
+    ('nonassoc', '<', 'MENOR_IGUAL', '>', 'MAIOR_IGUAL'), 
+    ('left', '+', '-'),
+    ('left', '*', '/'),
+    ('right', '!', 'UMINUS'),
+    )
 
 #Ensinando o parser a reconhcer uma sequencia de zero ou mais declarações de funcao
 #usa p por que o PLY procuras regras da gramatica nessa formatação
@@ -16,7 +27,9 @@ def p_declaracoes_funcoes(p):
 #Fala que um comando pode ser uma atribuicao
 def p_comando(p):
     """comando : atribuicao
-                | leitura"""
+                | leitura
+                | escrita
+                | condicional"""
     p[0] = p[1]
 
 #Reconhece uma atribuicao EX: idade = 20
@@ -38,6 +51,34 @@ def p_leituira(p):
     """leitura : READ '(' lista_identificadores ')' ';'"""
     p[0] = Leitura(p[3])
 
+#reconhece uma ou mais expressoes separadas pela virgula EX: 1, a, true
+def p_lista_expressoes(p):
+    """lista_expressoes : lista_expressoes ',' expressao
+                        | expressao"""
+    if len(p) == 4:
+        p[0] = p[1] + [p[3]]
+    else:
+        p[0] = [p[1]]
+
+#reconhece o comando PRINT
+def p_escrita(p):
+    """escrita : PRINT '(' lista_expressoes ')' ';'"""
+    p[0] = Escrita(p[3])
+
+#Reconhece as chaves e volta a lista de comando dentro dela
+def p_bloco(p):
+    """bloco : '{' comandos '}'"""
+    p[0] = p[2]
+
+#Reconhece as duas formas de condicional como esta escrito na funcao abaixo
+def p_condicional(p):
+    """condicional : IF '(' expressao ')' bloco ELSE bloco
+                    | IF '(' expressao ')' bloco"""
+    if len(p) == 8:
+        p[0] = Condicional(p[3], p[5], p[7])
+    else:
+        p[0] = Condicional(p[3], p[5], None)
+
 #Vai reconhecer um número escrito no código,
 def p_expressao_numero(p):
     """expressao : NUM"""
@@ -54,6 +95,33 @@ def p_expressao_variavel(p):
     """expressao : ID"""
     p[0] = Variavel(p[1])
 
+#aprende a reconhecerr uma expressao entre parenteses
+def p_expressao_parenteses(p):
+    """expressao : '(' expressao ')'"""
+    p[0] = p[2]
+
+#Esta reconhecendo a expressao seguida do operador e antes ex: 10+5
+def p_expressao_binaria(p):
+    """expressao : expressao '+' expressao
+                    | expressao '-' expressao
+                    | expressao '*' expressao
+                    | expressao '/' expressao
+                    | expressao '<' expressao
+                    | expressao MENOR_IGUAL expressao
+                    | expressao '>' expressao
+                    | expressao MAIOR_IGUAL expressao
+                    | expressao IGUAL expressao
+                    | expressao DIFERENTE expressao
+                    | expressao E_LOGICO expressao
+                    | expressao OU_LOGICO expressao"""
+    p[0] = OperacaoBinaria(p[2], p[1], p[3])
+
+#Reconhecendo expressoes como - e ! 
+def p_expressao_unaria(p): 
+    """expressao : '-' expressao %prec UMINUS
+                    | '!' expressao"""
+    p[0] = OperacaoUniria(p[1], p[2])
+
 #Ensinando o parser a reconhcer uma sequencia de zero ou mais variaveis
 def p_declaracoes_variaveis(p):
     """declaracoes_variaveis : declaracoes_variaveis declaracao_variavel
@@ -64,7 +132,7 @@ def p_declaracoes_variaveis(p):
         p[0] = p[1]
 
 #Guarda todos os comandos que aparecem no programa
-#Ensinando o parser a reconhcer uma sequencia de zero ou mais comandos
+#Ensinando o parser a reconhcer uma sequencia de zero ou mais comandos EX idade = 20;
 def p_comandos(p):
     """comandos : comandos comando
                 | empty """

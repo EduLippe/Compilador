@@ -55,4 +55,24 @@ class Leitura(NoAST):
     def __init__(self, identificadores):
         self.identificadores = identificadores
 
+class Escrita(NoAST):
+    def __init__(self, expressoes):
+        self.expressoes = expressoes
+
+class OperacaoBinaria(NoAST):
+    def __init__(self, operador, esquerda, direita):
+        self.operador = operador
+        self.esquerda = esquerda
+        self.direita = direita
+
+class OperacaoUniria(NoAST):
+    def __init__(self, operador, expressao):
+        self.operador = operador
+        self.expressao = expressao
+
+class Condicional(NoAST):
+    def __init__(self, condicao, comandos_se, comandos_senao):
+        self.condicao = condicao
+        self.comandos_se = comandos_se
+        self.comandos_senao = comandos_senao
 
