@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 from lexer import tokens, literals, lexer
-from nosAst import DeclaracaoVariavel, Programa, Parametro, Funcao, Atribuicao, Numero, Booleano, Variavel, Leitura, Escrita, OperacaoBinaria, OperacaoUniria, Condicional
+from nosAst import DeclaracaoVariavel, Programa, Parametro, Funcao, Atribuicao, Numero, Booleano, Variavel, Leitura, Escrita, OperacaoBinaria, OperacaoUnaria, Condicional, Repeticao, Retorno, Chamada
 
 #A ordem defene a prioridade
 precedence = (
@@ -29,7 +29,9 @@ def p_comando(p):
     """comando : atribuicao
                 | leitura
                 | escrita
-                | condicional"""
+                | condicional
+                | repeticao
+                | retorno"""
     p[0] = p[1]
 
 #Reconhece uma atribuicao EX: idade = 20
@@ -47,7 +49,7 @@ def p_lista_identificadores(p):
         p[0] = [p[1]]
 
 #reconhece o comando READ
-def p_leituira(p):
+def p_leitura(p):
     """leitura : READ '(' lista_identificadores ')' ';'"""
     p[0] = Leitura(p[3])
 
@@ -65,6 +67,16 @@ def p_escrita(p):
     """escrita : PRINT '(' lista_expressoes ')' ';'"""
     p[0] = Escrita(p[3])
 
+def p_argumentos_opcionais(p):
+    """ argumentos_opcionais : lista_expressoes
+                                | empty"""
+    p[0] = p[1]
+
+#reconhece o nome, o parêntese aberto, os argumentos e o parêntese fechado
+def p_chamada(p):
+    """chamada : ID '(' argumentos_opcionais ')'"""
+    p[0] = Chamada(p[1], p[3])
+
 #Reconhece as chaves e volta a lista de comando dentro dela
 def p_bloco(p):
     """bloco : '{' comandos '}'"""
@@ -78,6 +90,16 @@ def p_condicional(p):
         p[0] = Condicional(p[3], p[5], p[7])
     else:
         p[0] = Condicional(p[3], p[5], None)
+
+#Receonhece a funcao do while, 
+def p_repeticao(p):
+    """repeticao : WHILE '(' expressao ')' bloco"""
+    p[0] = Repeticao(p[3], p[5])
+
+#aprende a funcao de return das funcoes de def que usamos no python normal
+def p_retorno(p):
+    """retorno : RETURN expressao ';'"""
+    p[0] = Retorno(p[2])
 
 #Vai reconhecer um número escrito no código,
 def p_expressao_numero(p):
@@ -120,7 +142,7 @@ def p_expressao_binaria(p):
 def p_expressao_unaria(p): 
     """expressao : '-' expressao %prec UMINUS
                     | '!' expressao"""
-    p[0] = OperacaoUniria(p[1], p[2])
+    p[0] = OperacaoUnaria(p[1], p[2])
 
 #Ensinando o parser a reconhcer uma sequencia de zero ou mais variaveis
 def p_declaracoes_variaveis(p):

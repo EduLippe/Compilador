@@ -65,14 +65,29 @@ class OperacaoBinaria(NoAST):
         self.esquerda = esquerda
         self.direita = direita
 
-class OperacaoUniria(NoAST):
+class OperacaoUnaria(NoAST):
     def __init__(self, operador, expressao):
         self.operador = operador
         self.expressao = expressao
 
+# if e else
 class Condicional(NoAST):
     def __init__(self, condicao, comandos_se, comandos_senao):
         self.condicao = condicao
         self.comandos_se = comandos_se
         self.comandos_senao = comandos_senao
 
+#While
+class Repeticao(NoAST):
+    def __init__(self, condicao, comandos):
+        self.condicao = condicao
+        self.comandos = comandos
+
+class Retorno(NoAST):
+    def __init__(self, expressao):
+        self.expressao = expressao
+
+class Chamada(NoAST):
+    def __init__(self, nome, argumentos):
+        self.nome = nome
+        self.argumentos = argumentos
