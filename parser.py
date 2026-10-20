@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 from lexer import tokens, literals, lexer
-from nosAst import DeclaracaoVariavel, Programa, Parametro, Funcao
+from nosAst import DeclaracaoVariavel, Programa, Parametro, Funcao, Atribuicao
 
 #Ensinando o parser a reconhcer uma sequencia de zero ou mais declarações de funcao
 #usa p por que o PLY procuras regras da gramatica nessa formatação
@@ -12,6 +12,16 @@ def p_declaracoes_funcoes(p):
         p[0] = p[1] + [p[2]]
     else:
         p[0] = p[1]
+
+#Fala que um comando pode ser uma atribuicao
+def p_comando(p):
+    """comando : atribuicao"""
+    p[0] = p[1]
+
+#Reconhece uma atribuicao EX: idade = 20;
+def p_atribuicao(p):
+    """atribuicao : ID '=' expressao ';'"""
+    p[0] = Atribuicao(p[1], p[3])
 
 #Ensinando o parser a reconhcer uma sequencia de zero ou mais variaveis
 def p_declaracoes_variaveis(p):
