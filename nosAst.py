@@ -2,6 +2,9 @@ class NoAST:
     """Classe base para os nos da arvore sintática"""
     pass
 
+#
+#                                  ESTRUTURA
+#
 class DeclaracaoVariavel(NoAST):
     def __init__(self, tipo, nome):
         self.tipo = tipo
@@ -34,22 +37,13 @@ class Funcao(NoAST):
         self.declaracoes_variaveis = declaracoes_variaveis
         self.comandos = comandos
 
+#
+#                                  COMANDOS
+#
 class Atribuicao(NoAST):
     def __init__(self, nome, expressao):
         self.nome = nome
         self.expressao = expressao
-
-class Numero(NoAST):
-    def __init__(self, valor):
-        self.valor = valor
-
-class Booleano(NoAST):
-    def __init__(self, valor):
-        self.valor = valor
-
-class Variavel(NoAST):
-    def __init__(self, nome):
-        self.nome = nome
 
 class Leitura(NoAST):
     def __init__(self, identificadores):
@@ -59,18 +53,7 @@ class Escrita(NoAST):
     def __init__(self, expressoes):
         self.expressoes = expressoes
 
-class OperacaoBinaria(NoAST):
-    def __init__(self, operador, esquerda, direita):
-        self.operador = operador
-        self.esquerda = esquerda
-        self.direita = direita
-
-class OperacaoUnaria(NoAST):
-    def __init__(self, operador, expressao):
-        self.operador = operador
-        self.expressao = expressao
-
-# if e else
+#if e else
 class Condicional(NoAST):
     def __init__(self, condicao, comandos_se, comandos_senao):
         self.condicao = condicao
@@ -85,6 +68,32 @@ class Repeticao(NoAST):
 
 class Retorno(NoAST):
     def __init__(self, expressao):
+        self.expressao = expressao
+
+#
+#                                  EXPRESSOES
+#
+class Numero(NoAST):
+    def __init__(self, valor):
+        self.valor = valor
+
+class Booleano(NoAST):
+    def __init__(self, valor):
+        self.valor = valor
+
+class Variavel(NoAST):
+    def __init__(self, nome):
+        self.nome = nome
+
+class OperacaoBinaria(NoAST):
+    def __init__(self, operador, esquerda, direita):
+        self.operador = operador
+        self.esquerda = esquerda
+        self.direita = direita
+
+class OperacaoUnaria(NoAST):
+    def __init__(self, operador, expressao):
+        self.operador = operador
         self.expressao = expressao
 
 class Chamada(NoAST):
