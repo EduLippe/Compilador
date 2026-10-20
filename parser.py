@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 from lexer import tokens, literals, lexer
-from nosAst import DeclaracaoVariavel, Programa, Parametro
+from nosAst import DeclaracaoVariavel, Programa, Parametro, Funcao
 
 #Ensinando o parser a reconhcer uma sequencia de zero ou mais declarações de funcao
 #usa p por que o PLY procuras regras da gramatica nessa formatação
@@ -79,6 +79,17 @@ def p_lista_parametros(p):
         p[0] = p[1] + [p[3]]
     else:
         p[0] = [p[1]]
+
+#Caso uma funcao nao tenha nenhum parametro
+def p_parametros_opcionais(p):
+    """parametros_opcionais : lista_parametros
+                            | empty"""
+    p[0] = p[1]
+
+#Define a regra para reconhecer uma declaracao de funcao da linguagem 
+def p_declaracao_funcao(p):
+    """declaracao_funcao : FUN ID '(' parametros_opcionais ')' SETA tipo_retorno '{' declaracoes_variaveis comandos '}'"""
+    p[0] = Funcao(p[2], p[4], p[7], p[9], p[10])
 
 #Chama erro quando encontra um token que nao tem na gramatica
 def p_error(p):

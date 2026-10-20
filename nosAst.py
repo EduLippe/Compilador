@@ -24,4 +24,12 @@ class Parametro(NoAST):
     def __init__(self, tipo, nome):
         self.tipo = tipo
         self.nome = nome
+
+class Funcao(NoAST):
+    def __init__(self, nome, parametros, tipo_retorno, declaracoes_variaveis, comandos):
+        self.nome = nome
+        self.parametros = parametros
+        self.tipo_retorno = tipo_retorno
+        self.declaracoes_variaveis = declaracoes_variaveis
+        self.comandos = comandos
         
