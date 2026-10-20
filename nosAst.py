@@ -51,3 +51,8 @@ class Variavel(NoAST):
     def __init__(self, nome):
         self.nome = nome
 
+class Leitura(NoAST):
+    def __init__(self, identificadores):
+        self.identificadores = identificadores
+
+

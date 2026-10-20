@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 from lexer import tokens, literals, lexer
-from nosAst import DeclaracaoVariavel, Programa, Parametro, Funcao, Atribuicao
+from nosAst import DeclaracaoVariavel, Programa, Parametro, Funcao, Atribuicao, Numero, Booleano, Variavel, Leitura
 
 #Ensinando o parser a reconhcer uma sequencia de zero ou mais declarações de funcao
 #usa p por que o PLY procuras regras da gramatica nessa formatação
@@ -15,13 +15,44 @@ def p_declaracoes_funcoes(p):
 
 #Fala que um comando pode ser uma atribuicao
 def p_comando(p):
-    """comando : atribuicao"""
+    """comando : atribuicao
+                | leitura"""
     p[0] = p[1]
 
-#Reconhece uma atribuicao EX: idade = 20;
+#Reconhece uma atribuicao EX: idade = 20
 def p_atribuicao(p):
     """atribuicao : ID '=' expressao ';'"""
     p[0] = Atribuicao(p[1], p[3])
+
+#Ta reconhecendo uma lista de nomes separados por vírgula EX: a, b, c
+def p_lista_identificadores(p):
+    """lista_identificadores : lista_identificadores ',' ID
+                                | ID"""
+    if len(p) == 4:
+        p[0] = p[1] + [p[3]]
+    else:
+        p[0] = [p[1]]
+
+#reconhece o comando READ
+def p_leituira(p):
+    """leitura : READ '(' lista_identificadores ')' ';'"""
+    p[0] = Leitura(p[3])
+
+#Vai reconhecer um número escrito no código,
+def p_expressao_numero(p):
+    """expressao : NUM"""
+    p[0] = Numero(p[1])
+
+#reconhece true ou False
+def p_expressao_booleano(p):
+    """expressao : TRUE
+                    | FALSE"""
+    p[0] = Booleano(p[1] == 'true')
+
+#Reconhe o uso de uma variavel (x) dentro da expressao
+def p_expressao_variavel(p):
+    """expressao : ID"""
+    p[0] = Variavel(p[1])
 
 #Ensinando o parser a reconhcer uma sequencia de zero ou mais variaveis
 def p_declaracoes_variaveis(p):
