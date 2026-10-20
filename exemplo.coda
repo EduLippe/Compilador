@@ -1,0 +1,6 @@
+program test {
+    int x;
+    // comentário
+    x = 10 -> 5;
+    @
+}
