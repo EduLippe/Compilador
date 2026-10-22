@@ -5,6 +5,7 @@ class NoAST:
 #
 #                                  ESTRUTURA
 #
+
 class DeclaracaoVariavel(NoAST):
     def __init__(self, tipo, nome):
         self.tipo = tipo
@@ -40,6 +41,7 @@ class Funcao(NoAST):
 #
 #                                  COMANDOS
 #
+
 class Atribuicao(NoAST):
     def __init__(self, nome, expressao):
         self.nome = nome
@@ -73,6 +75,7 @@ class Retorno(NoAST):
 #
 #                                  EXPRESSOES
 #
+
 class Numero(NoAST):
     def __init__(self, valor):
         self.valor = valor

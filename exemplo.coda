@@ -1,6 +1,9 @@
-program test {
+program teste {
     int x;
-    // comentário
-    x = 10 -> 5;
-    @
+    // comentario
+    fun dobro(int a) -> int {
+        return a * 2;
+    }
+    x = dobro(5);
+    print(x);
 }

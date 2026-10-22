@@ -22,6 +22,7 @@ tokens = (
     'ID','NUM','SETA','IGUAL','DIFERENTE','MENOR_IGUAL','MAIOR_IGUAL',
     'E_LOGICO','OU_LOGICO') + tuple(reservadas.values())
 
+#Nao precisam de token, sao caracteres soltos
 literals = ['(', ')', ';', '{', '}', ',', '=', '<', '>', '+', '-', '*', '/', '!']
 
 
