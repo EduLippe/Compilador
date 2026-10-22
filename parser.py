@@ -30,7 +30,8 @@ def p_programa(p):
        p[2],
        p[4],
        p[5],
-       p[6]
+       p[6],
+       p.lineno(1)
    )
 
 #Ensinando o parser a reconhcer uma sequencia de zero ou mais variaveis
@@ -74,7 +75,7 @@ def p_empty(p):
 #Reconhece uma declaração
 def p_declaracao_variavel(p):
     """declaracao_variavel : tipo ID ';' """
-    p[0] = DeclaracaoVariavel(p[1], p[2])
+    p[0] = DeclaracaoVariavel(p[1], p[2], p.lineno(1))
 #Exemplo do que essa função cria no nó (DeclaracaoVariavel("int", "idade"))
 #Fala que um comando pode ser uma atribuicao
 
@@ -92,7 +93,7 @@ def p_tipo_retorno(p):
 #um parâmetro é um tipo seguido de um identificador, como em int(p1) a(p2)
 def p_parametro(p):
     """parametro : tipo ID"""
-    p[0] = Parametro(p[1], p[2])
+    p[0] = Parametro(p[1], p[2], p.lineno(1))
 
 #Vai reconhecer um ou mais parametros sempre separados por uma ','
 def p_lista_parametros(p):
@@ -112,7 +113,7 @@ def p_parametros_opcionais(p):
 #Define a regra para reconhecer uma declaracao de funcao da linguagem 
 def p_declaracao_funcao(p):
     """declaracao_funcao : FUN ID '(' parametros_opcionais ')' SETA tipo_retorno '{' declaracoes_variaveis comandos '}'"""
-    p[0] = Funcao(p[2], p[4], p[7], p[9], p[10])
+    p[0] = Funcao(p[2], p[4], p[7], p[9], p[10], p.lineno(1))
 
 #
 # COMANDOS
@@ -131,17 +132,17 @@ def p_comando(p):
 #Reconhece uma atribuicao EX: idade = 20
 def p_atribuicao(p):
     """atribuicao : ID '=' expressao ';'"""
-    p[0] = Atribuicao(p[1], p[3])
+    p[0] = Atribuicao(p[1], p[3], p.lineno(1))
 
 #reconhece o comando READ
 def p_leitura(p):
     """leitura : READ '(' lista_identificadores ')' ';'"""
-    p[0] = Leitura(p[3])
+    p[0] = Leitura(p[3], p.lineno(1))
 
 #reconhece o comando PRINT
 def p_escrita(p):
     """escrita : PRINT '(' lista_expressoes ')' ';'"""
-    p[0] = Escrita(p[3])
+    p[0] = Escrita(p[3], p.lineno(1))
 
 #Reconhece as chaves e volta a lista de comando dentro dela
 def p_bloco(p):
@@ -153,19 +154,19 @@ def p_condicional(p):
     """condicional : IF '(' expressao ')' bloco ELSE bloco
                     | IF '(' expressao ')' bloco"""
     if len(p) == 8:
-        p[0] = Condicional(p[3], p[5], p[7])
+        p[0] = Condicional(p[3], p[5], p[7], p.lineno(1))
     else:
-        p[0] = Condicional(p[3], p[5], None)
+        p[0] = Condicional(p[3], p[5], None, p.lineno(1))
 
 #Receonhece a funcao do while, 
 def p_repeticao(p):
     """repeticao : WHILE '(' expressao ')' bloco"""
-    p[0] = Repeticao(p[3], p[5])
+    p[0] = Repeticao(p[3], p[5], p.lineno(1))
 
 #aprende a funcao de return das funcoes de def que usamos no python normal
 def p_retorno(p):
     """retorno : RETURN expressao ';'"""
-    p[0] = Retorno(p[2])
+    p[0] = Retorno(p[2], p.lineno(1))
 
 #reconhce uma chamada usada sozinha como EX: nada() soma(1, 2);
 def p_chamada_comando(p):
@@ -206,23 +207,23 @@ def p_argumentos_opcionais(p):
 #Vai reconhecer um número escrito no código,
 def p_expressao_numero(p):
     """expressao : NUM"""
-    p[0] = Numero(p[1])
+    p[0] = Numero(p[1], p.lineno(1))
 
 #reconhece true ou False
 def p_expressao_booleano(p):
     """expressao : TRUE
                     | FALSE"""
-    p[0] = Booleano(p[1] == 'true')
+    p[0] = Booleano(p[1] == 'true', p.lineno(1))
 
 #reconhece o nome, o parêntese aberto, os argumentos e o parêntese fechado
 def p_chamada(p):
     """chamada : ID '(' argumentos_opcionais ')'"""
-    p[0] = Chamada(p[1], p[3])
+    p[0] = Chamada(p[1], p[3], p.lineno(1))
 
 #Reconhe o uso de uma variavel (x) dentro da expressao
 def p_expressao_variavel(p):
     """expressao : ID"""
-    p[0] = Variavel(p[1])
+    p[0] = Variavel(p[1], p.lineno(1))
 
 #diz que uma expressão tambem pode ser uma chamada, como em x = soma(1, 2)
 def p_expressao_chamada(p):
@@ -248,13 +249,13 @@ def p_expressao_binaria(p):
                     | expressao DIFERENTE expressao
                     | expressao E_LOGICO expressao
                     | expressao OU_LOGICO expressao"""
-    p[0] = OperacaoBinaria(p[2], p[1], p[3])
+    p[0] = OperacaoBinaria(p[2], p[1], p[3], p.lineno(2))
 
 #Reconhecendo expressoes como - e ! 
 def p_expressao_unaria(p): 
     """expressao : '-' expressao %prec UMINUS
                     | '!' expressao"""
-    p[0] = OperacaoUnaria(p[1], p[2])
+    p[0] = OperacaoUnaria(p[1], p[2], p.lineno(1))
 
 #
 #  FIM ARQUIVO

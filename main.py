@@ -1,5 +1,5 @@
 import sys
-from lexer import lexer
+import lexer as modulo_lexer
 from parser import parser
 from nosAst import NoAST
 
@@ -12,7 +12,7 @@ def imprimir_arvore(no, nivel=0, rotulo=""):
         print(f"{recuo}{prefixo}{type(no).__name__}")
         for campo, valor in vars(no).items():
             imprimir_arvore(valor, nivel + 1, campo)
-    elif isinstance(no, NoAST):
+    elif isinstance(no, list):
         if no:
             print(f"{recuo}{prefixo}lista")
             for item in no:
@@ -35,8 +35,14 @@ def main():
         print(f"Erro: nao foi possivel abrir o arquivo '{caminho}'")
         sys.exit(1)
 
-    lexer.lineno = 1
-    arvore = parser.parse(codigo, lexer=lexer)
+    modulo_lexer.tem_erro_lexico = False
+    modulo_lexer.lexer.lineno = 1
+
+    arvore = parser.parse(codigo, lexer=modulo_lexer.lexer, tracking=True)
+
+    if modulo_lexer.tem_erro_lexico:
+        print("Compilacao interrompida: erros lexicos.")
+        sys.exit(1)
 
     if arvore is None:
         print("Compilacao interrompida: erros sintaticos.")

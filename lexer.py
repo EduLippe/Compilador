@@ -35,16 +35,19 @@ t_E_LOGICO       = r'&&'
 t_OU_LOGICO      = r'\|\|'
 
 t_ignore = ' \t'
+tem_erro_lexico = False
 
 def t_newline(t): #Contas as linhas
     r'\n+'
     t.lexer.lineno += len (t.value)
 
-def t_COMENTARIO(t): #Ignora o comentario
+#Ignora o comentario
+def t_COMENTARIO(t): 
     r'//[^\n]*'
     pass
 
-def t_ID(t): #Vira palavra reservada se for, se não fica ID mesmo
+#Vira palavra reservada se for, se não fica ID mesmo
+def t_ID(t): 
     r'[a-zA-Z][a-zA-Z0-9_]*'
     t.type = reservadas.get(t.value, 'ID')
     return t
@@ -55,6 +58,8 @@ def t_NUM(t): #Valor vira um inteiro
     return t
 
 def t_error(t):
+    global tem_erro_lexico
+    tem_erro_lexico = True
     print(f"ERRO léxico na linha {t.lineno}: caractere ilegal '{t.value[0]}'")
     t.lexer.skip(1)
 
