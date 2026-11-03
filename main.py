@@ -2,6 +2,7 @@ import sys
 import lexer as modulo_lexer
 from parser import parser
 from nosAst import NoAST
+from semantica import AnalisadorSemantico
 
 #percorre a arvore e a partir da raiz imprime cada no em um nivel mais a direita
 def imprimir_arvore(no, nivel=0, rotulo=""):
@@ -46,6 +47,13 @@ def main():
 
     if arvore is None:
         print("Compilacao interrompida: erros sintaticos.")
+        sys.exit(1)
+
+    analisador_semantico = AnalisadorSemantico()
+
+    #O main passa a entregar a AST ao analisador, se tiver erro semantico ele parapode
+    if not analisador_semantico.analisar(arvore):
+        print("Compilação interrompida: erros semanticos.")
         sys.exit(1)
 
     print("Analise sintatica concluida sem erros.")

@@ -1,0 +1,10 @@
+program teste {
+    int resultado;
+
+    fun soma(int a, int b) -> int {
+        return a + b;
+    }
+
+    resultado = soma(2, 3);
+    print(resultado);
+}
