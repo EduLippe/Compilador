@@ -159,7 +159,7 @@ class AnalisadorSemantico:
                 ):
                     self._erro_semantico(
                         f"atribuicao para '{comando.nome}' espera "
-                        f"'{simbolo['tipo']}', mas recebeu"
+                        f"'{simbolo['tipo']}', mas recebeu "
                         f"'{tipo_expressao}'.",
                         comando.linha)
                     
@@ -174,7 +174,7 @@ class AnalisadorSemantico:
 
                     if tipo is not None and tipo not in ("int", "bool"):
                         self._erro_semantico(
-                            "print aceita somente expressoes dos tipos 'int' ou 'bool' .",
+                            "print aceita somente expressoes dos tipos 'int' ou 'bool'.",
                             expressao.linha) 
                 #Analisa cada expressao dentro de print e verificar se e do tipo int ou bool
 
@@ -203,7 +203,7 @@ class AnalisadorSemantico:
 
                 if tipo_condicao is not None and tipo_condicao != 'bool':
                     self._erro_semantico(
-                        "a condicao do while deve ter tipo 'bool',",
+                        "a condicao do while deve ter tipo 'bool'.",
                         comando.linha)
                     
                 self._visitar_comandos(comando.comandos)
@@ -231,7 +231,7 @@ class AnalisadorSemantico:
                         and tipo_expressao != tipo_esperado):
 
                         self._erro_semantico(
-                            f"o return deve ter tipo '{tipo_esperado}',"
+                            f"o return deve ter tipo '{tipo_esperado}', "
                             f"mas recebeu '{tipo_expressao}'.",
                             comando.linha)
 
@@ -315,6 +315,13 @@ class AnalisadorSemantico:
                 )
                 return None
 
+            if simbolo["categoria"] != "funcao":
+                self._erro_semantico(
+                    f"'{expressao.nome}' nao e uma funcao.",
+                    expressao.linha
+                )
+                return None
+            
             tipos_parametros = simbolo["parametros"]
 
             if len(expressao.argumentos) != len(tipos_parametros):

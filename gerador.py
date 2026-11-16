@@ -7,7 +7,7 @@ class GeradorCodigo:
     def emitir(self, instrucao):
         self.codigo.append(instrucao)
 
-    def novo_rotulo(sefl):
+    def novo_rotulo(self):
         rotulo = f"L{self.contador_rotulos}"
         self.contador_rotulos += 1
         return rotulo

@@ -3,7 +3,7 @@ from lexer import tokens, literals, lexer
 from nosAst import DeclaracaoVariavel, Programa, Parametro, Funcao, Atribuicao, Numero, Booleano, Variavel, Leitura, Escrita, OperacaoBinaria, OperacaoUnaria, Condicional, Repeticao, Retorno, Chamada
 
 #
-#                                   CABECALHO
+# CABECALHO
 #
 #A ordem defene a prioridade
 precedence = (
