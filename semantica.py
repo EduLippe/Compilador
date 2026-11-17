@@ -47,38 +47,71 @@ class AnalisadorSemantico:
         self.erros = []
         self.funcao_atual = None #Guarda a função que esta sendo analisada
 
+        # Controla o nivel exico atual.
+        # 0 representa o programa principal e 1 representa as funcoes
+        self.nivel_atual = 0
+        
+        # Controla a posicao das variarveis globais
+        self.proximo_deslocamento_global = 0
+
+        # Controla a posicao das variaveis locais de cada funcao
+        self.proximo_deslocamento_local = 0
+
+        # Guarda os simbolos locais de cada funcao para uso do gerador
+        self.escopos_funcoes = {}
+
     #Organiza toda analise
     def analisar(self, programa):
 
         #registra as variaveis e as assinaturas das funcoes globais
         self.registrar_globais(programa)
+        self.nivel_atual = 0
         self._visitar_comandos(programa.comandos)
 
         for funcao in programa.declaracoes_funcoes:
             #percorre cada funcao, e marca qual esta sendo analisada
             self.funcao_atual = funcao
+            self.nivel_atual = 1
+
+            #Reinicia o deslocamento das variaveis locais
+            self.proximo_deslocamento_local = 0
+
+            #Abre um novo escopo para a funcao
             self.tabela.entrar_escopo()
 
-            for parametro in funcao.parametros:
-                self._registrar_parametro(parametro)
+            #Registra os parametrosd da funcao
+            for indice, parametro in enumerate (funcao.parametros):
+                self._registrar_parametro(parametro, indice)
 
+            #Registra variaveis locais
             for declaracao in funcao.declaracoes_variaveis:
                 self._registrar_variavel(declaracao)
 
-            # Analisa o corpo enquanto o escopo da função esta aberto
-            self._visitar_comandos(funcao.comandos)
+            #Guarda uma copia do escopo antes de remover
+            self.escopos_funcoes[funcao.nome] = dict(self.tabela.escopos[-1])
             
+            #Atualiza as informacoes na tabela global
+            simbolo_funcao = self.tabela.escopos[0].get(funcao.nome)
+
+            if simbolo_funcao is not None:
+                simbolo_funcao["quantidade_parametros"] = len(funcao.parametros)
+                simbolo_funcao["quantidade_locais"] = (
+                self.proximo_deslocamento_local)
+
+            self._visitar_comandos(funcao.comandos)
+
             #Essa funcao pergunta se precisa retornar um valor e nao tem return?
-            if(
+            if (
                 funcao.tipo_retorno != "void"
                 and not self._possui_retorno(funcao.comandos)):
-
+                   
                 self._erro_semantico(
-                    f"a funcao '{funcao.nome}' precisa ter um return.",
-                    funcao.linha)
+                f"a funcao '{funcao.nome}' precisa ter um return.",
+                funcao.linha)
 
             self.tabela.sair_escopo() #Remove o escopo local
             self.funcao_atual = None
+            self.nivel_atual = 0
 
         # Retorna true se tiver vazia e false se tiver algum erro  
         return len(self.erros) == 0
@@ -95,12 +128,17 @@ class AnalisadorSemantico:
         for funcao in programa.declaracoes_funcoes:
             self._registrar_funcao(funcao)
 
-    def _registrar_parametro(self, parametro):
+    def _registrar_parametro(self, parametro, indice):
+
+        deslocamento = -5 - indice
+
         #Transforma as informacoes de um no parametro apra um registro na tabela
         informacoes = {
             "categoria" : "parametro",
             "tipo" : parametro.tipo,
-            "linha" : parametro.linha}
+            "linha" : parametro.linha,
+            "nivel" : self.nivel_atual,
+            "deslocamento" : deslocamento}
 
         self._registrar(
             parametro.nome,
@@ -108,31 +146,52 @@ class AnalisadorSemantico:
             parametro.linha)
 
     def _registrar_variavel(self, declaracao):
+
+        #Define o deslocamento conforme o nivel
+        if self.nivel_atual == 0:
+            deslocamento = self.proximo_deslocamento_global
+        else:
+            deslocamento = self.proximo_deslocamento_local
+
         #Serve tanto para globais quanto para as locais 
         informacoes = {"categoria" : "variavel",
                        "tipo" : declaracao.tipo,
-                       "linha" : declaracao.linha}
-        
-        self._registrar(declaracao.nome, informacoes, declaracao.linha)
+                       "linha" : declaracao.linha,
+                       "nivel": self.nivel_atual,
+                       "deslocamento": deslocamento}
+
+        if self._registrar(declaracao.nome, informacoes, declaracao.linha):
+
+            if self.nivel_atual == 0:
+                self.proximo_deslocamento_global += 1
+            else:
+                self.proximo_deslocamento_local += 1
+
 
     def _registrar_funcao(self, funcao):
+
         informacoes = {"categoria" : "funcao",
                         "tipo" : funcao.tipo_retorno,
                         "parametros" : [parametro.tipo for parametro in funcao.parametros],
-                        "linha" : funcao.linha}
+                        "linha" : funcao.linha,
+                        "nivel": 0,
+                        "quantidade_parametros": len(funcao.parametros),
+                        "quantidade_locais": 0}
 
-        self._registrar(
-            funcao.nome,
-            informacoes,
-            funcao.linha)
+        self._registrar(funcao.nome, informacoes, funcao.linha)
 
     def _registrar(self, nome, informacoes, linha):
+
         if not self.tabela.declarar(nome, informacoes):
 
             mensagem = (f"'{nome}' ja foi declarado neste escopo.")
             erro = f"Erro semantico na linha {linha}: {mensagem}"
             self.erros.append(erro)
             print(erro)
+
+            return False
+
+        return True
 
     def _visitar_comandos(self, comandos):
         #EX: idade = 2+3;

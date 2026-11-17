@@ -1,3 +1,16 @@
+'''
+1	Inicialização e finalização	(INPP, PARA, FIM)
+2	Alocação de variáveis	(AMEM, DMEM)
+3	Constantes e variáveis	(CRCT, CRVL, ARMZ)
+4	Operações aritméticas	(SOMA, SUBT, MULT, DIVI, INVR)
+5	Operações lógicas e relacionais	(CONJ, DISJ, NEGA, CMME, CMMA etc.)
+6	Condicionais	(DSVF, DSVS, NADA)
+7	Repetições	(DSVF, DSVS, NADA)
+8	Funções e procedimentos	(CHPR, ENPR, RTPR)
+9	Retorno de funções	ARMZ e gerenciamento do valor de retorno
+10	Integração	Geração do arquivo MEPA
+
+'''
 class GeradorCodigo:
     def __init__(self):
         self.codigo = [] #Guarda instruções geradas
