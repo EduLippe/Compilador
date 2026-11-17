@@ -12,3 +12,18 @@ class GeradorCodigo:
         self.contador_rotulos += 1
         return rotulo
     
+    def _buscar(self,nome):
+    #Procurea do escopo mais interno para o mais externo
+        for escopo in reversed(self.escopos):
+            if nome in escopo:
+                return escopo[nome]
+        return None
+
+#INPP - inicia a primeira linha e prepara a pilha de dados
+#PARA - interrompe a execucao
+#FIM - Marca o fim
+    def gerar(self, programa):
+        self.emitir("INPP")
+        self.emitir("PARA")
+        self.emitir("FIM")
+        return "\n".join(self.codigo) # adiciona uma quebra de linha em cada item na lista
