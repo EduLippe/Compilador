@@ -11,10 +11,23 @@
 10	Integração	Geração do arquivo MEPA
 
 '''
+
+from nosAst import (Programa, Funcao, Atribuicao, Leitura, Escrita, Condicional, Repeticao,
+                    Retorno, Numero, Booleano, Variavel, OperacaoBinaria, OperacaoUnaria, Chamada)
+
 class GeradorCodigo:
-    def __init__(self):
+    def __init__(self, analisador_semantico):
         self.codigo = [] #Guarda instruções geradas
         self.contador_rotulos = 0
+
+        #Aproveita a tabela da Analise semantica
+        self.tabela = analisador_semantico.tabela
+
+        #guarda a quantidade de variaveis globais
+        self.quantidade_globais = (analisador_semantico.proximo_deslocamento_global)
+
+        #Indica qual furcao esta sendo gerada no momento
+        self.funcao_atual = None
 
 #Adiciona instrucao ao codigo gerado ficando na ordem que foram mandadas
     def emitir(self, instrucao):
@@ -26,17 +39,42 @@ class GeradorCodigo:
         return rotulo
     
     def _buscar(self,nome):
-    #Procurea do escopo mais interno para o mais externo
-        for escopo in reversed(self.escopos):
-            if nome in escopo:
-                return escopo[nome]
-        return None
+
+        # Se estiver dentro de uma funcao, procura primeiro
+        # nos parametros e nas variaveis locais dela
+        if self.funcao_atual is not None:
+
+            escopo_local = self.escopos_funcoes.get(
+                self,self.funcao_atual, {}
+            )
+
+            if nome in escopo_local:
+                return escopo_local[nome]
+
+        # se nao achar dentro procura no escopo de fora
+        return self.tabela.escopos[0].get(nome)
 
 #INPP - inicia a primeira linha e prepara a pilha de dados
 #PARA - interrompe a execucao
 #FIM - Marca o fim
     def gerar(self, programa):
+
+        self.codigo = []
+        self.contador_rotulos = 0
+
+        #Inicia
         self.emitir("INPP")
+
+        #reserva espaco apra variaveis globais
+        if self.quantidade_globais > 0:
+            self.emitir(f"AMEM {self.quantidade_globais}")
+
+        #livera espaco apra variaveis globais
+        if self.quantidade_globais > 0:
+            self.emitir(f"DMEM {self.quantidade_globais}")
+
+        # Finaliza a execução.
         self.emitir("PARA")
         self.emitir("FIM")
-        return "\n".join(self.codigo) # adiciona uma quebra de linha em cada item na lista
+
+        return "\n".join(self.codigo)
