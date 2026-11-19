@@ -3,6 +3,7 @@ import lexer as modulo_lexer
 from parser import parser
 from nosAst import NoAST
 from semantica import AnalisadorSemantico
+from gerador import GeradorCodigo
 
 #percorre a arvore e a partir da raiz imprime cada no em um nivel mais a direita
 def imprimir_arvore(no, nivel=0, rotulo=""):
@@ -56,8 +57,8 @@ def main():
         print("Compilação interrompida: erros semanticos.")
         sys.exit(1)
 
-    print("Analise sintatica concluida sem erros.")
-    imprimir_arvore(arvore)
+    gerador = GeradorCodigo(analisador_semantico)
+    print(gerador.gerar(arvore))
 
 if __name__ == "__main__":
     main()

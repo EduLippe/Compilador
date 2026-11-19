@@ -23,6 +23,9 @@ class GeradorCodigo:
         #Aproveita a tabela da Analise semantica
         self.tabela = analisador_semantico.tabela
 
+        # Guarda os escopos locais
+        self.escopos_funcoes = analisador_semantico.escopos_funcoes
+
         #guarda a quantidade de variaveis globais
         self.quantidade_globais = (analisador_semantico.proximo_deslocamento_global)
 
@@ -38,14 +41,14 @@ class GeradorCodigo:
         self.contador_rotulos += 1
         return rotulo
     
-    def _buscar(self,nome):
+    def _buscar(self, nome):
 
         # Se estiver dentro de uma funcao, procura primeiro
         # nos parametros e nas variaveis locais dela
         if self.funcao_atual is not None:
 
             escopo_local = self.escopos_funcoes.get(
-                self,self.funcao_atual, {}
+                self.funcao_atual, {}
             )
 
             if nome in escopo_local:
@@ -57,6 +60,25 @@ class GeradorCodigo:
 #INPP - inicia a primeira linha e prepara a pilha de dados
 #PARA - interrompe a execucao
 #FIM - Marca o fim
+    def _gerar_expressao(self, expressao):
+        if isinstance(expressao, Numero):
+            self.emitir(f"CRCT {expressao.valor}")
+
+        elif isinstance(expressao, Booleano):
+            valor = 1 if expressao.valor else 0
+            self.emitir(f"CRCT {valor}")
+
+        elif isinstance(expressao, Variavel):
+            simbolo = self._buscar(expressao.nome)
+            self.emitir(f"CRVL {simbolo['nivel']}, {simbolo['deslocamento']}")
+
+    def _gerar_comandos(self, comandos):
+        for comando in comandos:
+            if isinstance(comando, Atribuicao):
+                self._gerar_expressao(comando.expressao)
+                simbolo = self._buscar(comando.nome)
+                self.emitir(f"ARMZ {simbolo['nivel']}, {simbolo['deslocamento']}")
+
     def gerar(self, programa):
 
         self.codigo = []
@@ -68,6 +90,8 @@ class GeradorCodigo:
         #reserva espaco apra variaveis globais
         if self.quantidade_globais > 0:
             self.emitir(f"AMEM {self.quantidade_globais}")
+
+        self._gerar_comandos(programa.comandos)
 
         #livera espaco apra variaveis globais
         if self.quantidade_globais > 0:
