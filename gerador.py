@@ -16,6 +16,21 @@ from nosAst import (Programa, Funcao, Atribuicao, Leitura, Escrita, Condicional,
                     Retorno, Numero, Booleano, Variavel, OperacaoBinaria, OperacaoUnaria, Chamada)
 
 class GeradorCodigo:
+    INSTRUCOES_BINARIAS = {
+        "+": "SOMA",
+        "-": "SUBT",
+        "*": "MULT",
+        "/": "DIVI",
+        "<": "CMME",
+        "<=": "CMEG",
+        ">": "CMMA",
+        ">=": "CMAG",
+        "==": "CMIG",
+        "!=": "CMDG",
+        "&&": "CONJ",
+        "||": "DISJ",
+    }
+
     def __init__(self, analisador_semantico):
         self.codigo = [] #Guarda instruções geradas
         self.contador_rotulos = 0
@@ -70,14 +85,41 @@ class GeradorCodigo:
 
         elif isinstance(expressao, Variavel):
             simbolo = self._buscar(expressao.nome)
-            self.emitir(f"CRVL {simbolo['nivel']}, {simbolo['deslocamento']}")
+            self.emitir(f"CRVL {simbolo['nivel']},{simbolo['deslocamento']}")
+
+        elif isinstance(expressao, OperacaoBinaria):
+            self._gerar_expressao(expressao.esquerda)
+            self._gerar_expressao(expressao.direita)
+            self.emitir(self.INSTRUCOES_BINARIAS[expressao.operador])
+
+        elif isinstance(expressao, OperacaoUnaria):
+                    self._gerar_expressao(expressao.expressao)
+                    if expressao.operador == "-":
+                        self.emitir("INVR")
+                    elif expressao.operador == "!":
+                        self.emitir("NEGA")
 
     def _gerar_comandos(self, comandos):
         for comando in comandos:
             if isinstance(comando, Atribuicao):
                 self._gerar_expressao(comando.expressao)
                 simbolo = self._buscar(comando.nome)
-                self.emitir(f"ARMZ {simbolo['nivel']}, {simbolo['deslocamento']}")
+                self.emitir(f"ARMZ {simbolo['nivel']},{simbolo['deslocamento']}")
+
+            elif isinstance(comando, Condicional):
+                self._gerar_expressao(comando.condicao)
+                rotulo_senao = self.novo_rotulo()
+                self.emitir(f"DSVF {rotulo_senao}")
+                self._gerar_comandos(comando.comandos_se)
+
+                if comando.comandos_senao is None:
+                    self.emitir(f"{rotulo_senao}: NADA")
+                else:
+                    rotulo_fim = self.novo_rotulo()
+                    self.emitir(f"DSVS {rotulo_fim}")
+                    self.emitir(f"{rotulo_senao}: NADA")
+                    self._gerar_comandos(comando.comandos_senao)
+                    self.emitir(f"{rotulo_fim}: NADA")
 
     def gerar(self, programa):
 
