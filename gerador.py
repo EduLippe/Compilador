@@ -46,6 +46,7 @@ class GeradorCodigo:
 
         #Indica qual furcao esta sendo gerada no momento
         self.funcao_atual = None
+        self.rotulos_funcoes = {}
 
 #Adiciona instrucao ao codigo gerado ficando na ordem que foram mandadas
     def emitir(self, instrucao):
@@ -121,10 +122,64 @@ class GeradorCodigo:
                     self._gerar_comandos(comando.comandos_senao)
                     self.emitir(f"{rotulo_fim}: NADA")
 
+            #Guarda uma lista de nomes, para cada nome o _buscar descobre o nível 
+            #e o deslocamento
+            elif isinstance(comando, Leitura):
+                for nome in comando.identificadores:
+                    simbolo = self._buscar(nome)
+                    self.emitir("LEIT")
+                    self.emitir(f"ARMZ {simbolo['nivel']},{simbolo['deslocamento']}")
+
+            elif isinstance(comando, Escrita):
+                for expressao in comando.expressoes:
+                    self._gerar_expressao(expressao)
+                    self.emitir("IMPR")
+
+            elif isinstance(comando, Chamada):
+                self._gerar_chamada(comando)
+            
+            elif isinstance(comando, Repeticao):
+                rotulo_inicio = self.novo_rotulo()
+                rotulo_fim = self.novo_rotulo()
+                self.emitir(f"{rotulo_inicio}: NADA")
+                self._gerar_expressao(comando.condicao)
+                self.emitir(f"DSVF {rotulo_fim}")
+                self._gerar_comandos(comando.comandos)
+                self.emitir(f"DSVS {rotulo_inicio}")
+                self.emitir(f"{rotulo_fim}: NADA")
+
+    def _gerar_chamada(self, chamada):
+        for argumento in reversed(chamada.argumentos):
+            self._gerar_expressao(argumento)
+
+        rotulo = self.rotulos_funcoes[chamada.nome]
+        nivel_atual = 0 if self.funcao_atual is None else 1
+        self.emitir(f"CHPR {rotulo},{nivel_atual}")
+
+    def _gerar_funcao(self, funcao):
+        simbolo = self.tabela.escopos[0][funcao.nome]
+        locais = simbolo["quantidade_locais"]
+        self.funcao_atual = funcao.nome
+
+        self.emitir(f"{self.rotulos_funcoes[funcao.nome]}: NADA")
+        self.emitir("ENPR 1")
+
+        if locais > 0:
+            self.emitir(f"AMEM {locais}")
+
+        self._gerar_comandos(funcao.comandos)
+
+        if locais > 0:
+            self.emitir(f"DMEM {locais}")
+
+        self.emitir(f"RTPR {simbolo['quantidade_parametros']}")
+        self.funcao_atual = None
+
     def gerar(self, programa):
 
         self.codigo = []
         self.contador_rotulos = 0
+        self.rotulos_funcoes = {}
 
         #Inicia
         self.emitir("INPP")
@@ -132,6 +187,19 @@ class GeradorCodigo:
         #reserva espaco apra variaveis globais
         if self.quantidade_globais > 0:
             self.emitir(f"AMEM {self.quantidade_globais}")
+
+        if programa.declaracoes_funcoes:
+            rotulo_principal = self.novo_rotulo()
+
+            for funcao in programa.declaracoes_funcoes:
+                self.rotulos_funcoes[funcao.nome] = self.novo_rotulo()
+
+            self.emitir(f"DSVS {rotulo_principal}")
+
+            for funcao in programa.declaracoes_funcoes:
+                self._gerar_funcao(funcao)
+
+            self.emitir(f"{rotulo_principal}: NADA")
 
         self._gerar_comandos(programa.comandos)
 
