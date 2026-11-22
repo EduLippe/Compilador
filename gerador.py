@@ -47,6 +47,8 @@ class GeradorCodigo:
         #Indica qual furcao esta sendo gerada no momento
         self.funcao_atual = None
         self.rotulos_funcoes = {}
+        #guarda o rotulo de saida da funcao que esta sendo gerada
+        self.rotulo_saida = None
 
 #Adiciona instrucao ao codigo gerado ficando na ordem que foram mandadas
     def emitir(self, instrucao):
@@ -87,6 +89,9 @@ class GeradorCodigo:
         elif isinstance(expressao, Variavel):
             simbolo = self._buscar(expressao.nome)
             self.emitir(f"CRVL {simbolo['nivel']},{simbolo['deslocamento']}")
+
+        elif isinstance(expressao, Chamada):
+            self._gerar_chamada(expressao)
 
         elif isinstance(expressao, OperacaoBinaria):
             self._gerar_expressao(expressao.esquerda)
@@ -137,6 +142,15 @@ class GeradorCodigo:
 
             elif isinstance(comando, Chamada):
                 self._gerar_chamada(comando)
+                if self.tabela.escopos[0][comando.nome]["tipo"] != "void":
+                    self.emitir("DMEM 1")
+
+            elif isinstance(comando, Retorno):
+                simbolo_funcao = self.tabela.escopos[0][self.funcao_atual]
+                self._gerar_expressao(comando.expressao)
+                deslocamento = -(5 + simbolo_funcao["quantidade_parametros"])
+                self.emitir(f"ARMZ 1,{deslocamento}")
+                self.emitir(f"DSVS {self.rotulo_saida}")
             
             elif isinstance(comando, Repeticao):
                 rotulo_inicio = self.novo_rotulo()
@@ -149,6 +163,10 @@ class GeradorCodigo:
                 self.emitir(f"{rotulo_fim}: NADA")
 
     def _gerar_chamada(self, chamada):
+        simbolo = self.tabela.escopos[0][chamada.nome]
+
+        if simbolo["tipo"] != "void":
+            self.emitir("AMEM 1")
         for argumento in reversed(chamada.argumentos):
             self._gerar_expressao(argumento)
 
@@ -167,8 +185,14 @@ class GeradorCodigo:
         if locais > 0:
             self.emitir(f"AMEM {locais}")
 
+        if simbolo["tipo"] != "void":
+            self.rotulo_saida = self.novo_rotulo()
+
         self._gerar_comandos(funcao.comandos)
 
+        if simbolo["tipo"] != "void":
+            self.emitir(f"{self.rotulo_saida}: NADA")
+    
         if locais > 0:
             self.emitir(f"DMEM {locais}")
 

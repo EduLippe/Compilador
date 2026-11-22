@@ -37,6 +37,9 @@ def main():
         print(f"Erro: nao foi possivel abrir o arquivo '{caminho}'")
         sys.exit(1)
 
+    saida_original = sys.stdout
+    sys.stdout = sys.stderr
+
     modulo_lexer.tem_erro_lexico = False
     modulo_lexer.lexer.lineno = 1
 
@@ -56,6 +59,8 @@ def main():
     if not analisador_semantico.analisar(arvore):
         print("Compilação interrompida: erros semanticos.")
         sys.exit(1)
+
+    sys.stdout = saida_original
 
     gerador = GeradorCodigo(analisador_semantico)
     print(gerador.gerar(arvore))
