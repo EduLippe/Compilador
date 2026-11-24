@@ -1,0 +1,12 @@
+// espera: ok
+// saida esperada no simulador: 7
+program locais {
+    fun f(int a, int b) -> int {
+        int x;
+        int y;
+        x = a * 2;
+        y = b + x;
+        return y - a;
+    }
+    print(f(3, 4));
+}

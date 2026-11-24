@@ -1,0 +1,4 @@
+// espera: semantico linha 3
+program t {
+    return 1;   // <<
+}

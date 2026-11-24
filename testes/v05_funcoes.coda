@@ -1,0 +1,36 @@
+// espera: ok
+// entrada: 5
+// saida esperada no simulador: 120 0 12 5 25 103 5
+program funcoes {
+    int x;
+    fun fat(int n) -> int {
+        if (n <= 1) {
+            return 1;
+        } else {
+            return n * fat(n - 1);
+        }
+    }
+    fun par(int n) -> bool {
+        return n / 2 * 2 == n;
+    }
+    fun soma(int a, int b) -> int {
+        return a + b;
+    }
+    fun mostra(int v) -> void {
+        print(v, v * v);
+    }
+    fun usa() -> int {
+        return depois(3);
+    }
+    fun depois(int q) -> int {
+        return q + 100;
+    }
+    read(x);
+    print(fat(x));
+    print(par(x));
+    print(soma(fat(3), soma(x, 1)));
+    mostra(x);
+    soma(1, 2);
+    print(usa());
+    print(x);
+}

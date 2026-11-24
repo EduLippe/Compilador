@@ -1,0 +1,6 @@
+// espera: lexico linha 5
+program t {
+    bool a;
+    bool b;
+    b = a | b;   // <<
+}

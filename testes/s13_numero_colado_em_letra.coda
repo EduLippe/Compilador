@@ -1,0 +1,5 @@
+// espera: sintatico linha 4
+program t {
+    int x;
+    x = 12abc;   // <<
+}

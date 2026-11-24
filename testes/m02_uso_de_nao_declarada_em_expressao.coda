@@ -1,0 +1,5 @@
+// espera: semantico linha 4
+program t {
+    int x;
+    x = y + 1;   // <<
+}

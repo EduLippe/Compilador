@@ -1,0 +1,4 @@
+// espera: lexico linha 3
+program t {
+    int _x;   // <<
+}

@@ -1,0 +1,6 @@
+// espera: semantico linha 5
+program t {
+    int x;
+    fun soma(int a, int b) -> int { return a + b; }
+    x = soma(1, true);   // <<
+}

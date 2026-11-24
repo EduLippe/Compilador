@@ -1,0 +1,4 @@
+// espera: sintatico linha 3
+program t {
+    void x;   // <<
+}

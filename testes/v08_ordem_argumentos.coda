@@ -1,0 +1,9 @@
+// espera: ok
+// saida esperada no simulador: 5 0
+program ordem {
+    fun sub(int a, int b, int c) -> int {
+        return a - b - c;
+    }
+    print(sub(10, 3, 2));
+    print(sub(3 + 4, sub(9, 1, 1), 0));
+}

@@ -1,0 +1,5 @@
+// espera: sintatico linha 4
+program t {
+    bool b;
+    b = 1 == 2 == 3;   // <<
+}

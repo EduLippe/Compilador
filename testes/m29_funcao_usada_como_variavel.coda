@@ -1,0 +1,6 @@
+// espera: semantico linha 5
+program t {
+    int x;
+    fun f() -> int { return 1; }
+    x = f;   // <<
+}

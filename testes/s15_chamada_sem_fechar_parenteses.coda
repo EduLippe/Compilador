@@ -1,0 +1,5 @@
+// espera: sintatico linha 4
+program t {
+    fun f(int a) -> void { }
+    f(1;   // <<
+}

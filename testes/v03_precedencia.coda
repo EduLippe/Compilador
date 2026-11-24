@@ -1,0 +1,10 @@
+// espera: ok
+// saida esperada no simulador: 7 9 3 3 -6 0
+program precedencia {
+    print(1 + 2 * 3);
+    print((1 + 2) * 3);
+    print(10 - 4 - 3);
+    print(20 / 3 / 2);
+    print(-2 * 3);
+    print(!(1 < 2) || 3 == 3 && 2 != 2);
+}

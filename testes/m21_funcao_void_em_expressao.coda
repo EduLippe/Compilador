@@ -1,0 +1,6 @@
+// espera: semantico linha 5
+program t {
+    int x;
+    fun nada() -> void { }
+    x = nada();   // <<
+}

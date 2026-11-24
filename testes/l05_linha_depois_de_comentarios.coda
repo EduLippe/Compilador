@@ -1,0 +1,9 @@
+// espera: lexico linha 8
+program t {
+
+    // linhas em branco e comentarios tambem contam
+
+
+    int x;
+    x = 1 $ 2;   // <<
+}

@@ -1,0 +1,17 @@
+// espera: ok
+// entrada: 10
+// saida esperada no simulador: 4
+program laco {
+    int r;
+    fun raiz(int limite) -> int {
+        int i;
+        i = 0;
+        while (true) {
+            if (i * i > limite) { return i; }
+            i = i + 1;
+        }
+        return 0;
+    }
+    read(r);
+    print(raiz(r));
+}

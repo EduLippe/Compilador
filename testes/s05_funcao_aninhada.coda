@@ -1,0 +1,6 @@
+// espera: sintatico linha 4
+program t {
+    fun f() -> void {
+        fun g() -> void { }   // <<
+    }
+}

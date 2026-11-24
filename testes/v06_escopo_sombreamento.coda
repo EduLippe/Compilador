@@ -1,0 +1,13 @@
+// espera: ok
+// saida esperada no simulador: 2 1
+program escopo {
+    int x;
+    fun local() -> void {
+        int x;
+        x = 2;
+        print(x);
+    }
+    x = 1;
+    local();
+    print(x);
+}

@@ -1,0 +1,8 @@
+// espera: ok
+// saida esperada no simulador: 5
+// comentario antes do programa
+program   comentarios   {   // depois da chave
+    int   a ;
+        a    =    5 ;   // atribuicao
+    print( a ) ;
+}

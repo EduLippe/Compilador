@@ -1,0 +1,13 @@
+// espera: ok
+// saida esperada no simulador: 1 0 0
+program mutua {
+    fun par(int n) -> bool {
+        if (n == 0) { return true; }
+        return impar(n - 1);
+    }
+    fun impar(int n) -> bool {
+        if (n == 0) { return false; }
+        return par(n - 1);
+    }
+    print(par(10), impar(10), par(7));
+}

@@ -1,0 +1,20 @@
+// espera: ok
+// entrada: 10
+// saida esperada no simulador: 25
+program controle {
+    int n;
+    int i;
+    int s;
+    read(n);
+    i = 1;
+    s = 0;
+    while (i <= n) {
+        if (i / 2 * 2 == i) {
+            s = s + i;
+        } else {
+            s = s - 1;
+        }
+        i = i + 1;
+    }
+    print(s);
+}

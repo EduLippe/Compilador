@@ -1,0 +1,4 @@
+// espera: sintatico
+program t {
+    int x;
+    x = 1;
